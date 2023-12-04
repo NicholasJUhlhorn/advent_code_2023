@@ -1,0 +1,16 @@
+# ignore debug and target folders 
+/*/debug
+/*/target
+
+# no need for Cargo.lock
+/*/Cargo.lock
+
+# no need for backup generated files
+/*/**/*.rs.bk
+
+# Windows stuff
+*.pdb
+*.exe
+
+# ignore input and output files
+*.txt
