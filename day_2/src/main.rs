@@ -56,10 +56,24 @@ fn main() {
        Ok(_) => (), 
     }
 
+    let mut id_sum = 0;
     for line in lines.lines() {
-        let game = build_game(line);
-        print!("{:?}\n", game)
+        let game = build_game(line).unwrap();
+        let mut valid_game = true;
+        for round in game.rounds {
+            if !check_validity(round, 12, 13, 14) {
+                valid_game = false
+            }
+        }
+        if valid_game {
+            id_sum = id_sum + game.id;
+        }
     }
+    print!("{}\n", id_sum);
+}
+
+fn check_validity(round : Round, red_count : u32, green_count : u32, blue_count : u32) -> bool {
+    return round.red <= red_count && round.green <= green_count && round.blue <= blue_count
 }
 
 fn build_game(line : &str) -> Result<Game> {
