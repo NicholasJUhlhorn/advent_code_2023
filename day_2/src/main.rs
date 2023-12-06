@@ -6,7 +6,7 @@
 // Output <- sum of game record ids that are possible games
 //           if there were 12 red, 13 green, and 14 blue cubes
 
-
+use std::cmp;
 use std::error;
 use std::fs::File;
 use std::io::prelude::*;
@@ -57,10 +57,11 @@ fn main() {
     }
 
     let mut id_sum = 0;
+    let mut power_sum = 0;
     for line in lines.lines() {
         let game = build_game(line).unwrap();
         let mut valid_game = true;
-        for round in game.rounds {
+        for round in &game.rounds {
             if !check_validity(round, 12, 13, 14) {
                 valid_game = false
             }
@@ -68,12 +69,34 @@ fn main() {
         if valid_game {
             id_sum = id_sum + game.id;
         }
+        let cube_set = get_min_cube_set(&game.rounds);
+        let cube_power = get_power(cube_set.0, cube_set.1, cube_set.2);
+        power_sum = power_sum + cube_power; 
     }
-    print!("{}\n", id_sum);
+    print!("id_sums: {}\n", id_sum);
+    print!("power_sum: {}\n", power_sum);
 }
 
-fn check_validity(round : Round, red_count : u32, green_count : u32, blue_count : u32) -> bool {
+fn check_validity(round : &Round, red_count : u32, green_count : u32, blue_count : u32) -> bool {
     return round.red <= red_count && round.green <= green_count && round.blue <= blue_count
+}
+
+fn get_min_cube_set(rounds : &Vec<Round>) -> (u32, u32, u32){
+    let mut max_red = 0;
+    let mut max_green = 0;
+    let mut max_blue = 0;
+
+    for round in rounds {
+        max_red = cmp::max(max_red, round.red);
+        max_green = cmp::max(max_green, round.green);
+        max_blue = cmp::max(max_blue, round.blue);
+    }
+
+    return (max_red, max_green, max_blue)
+}
+
+fn get_power(a : u32, b : u32, c : u32) -> u32 {
+    return a * b * c;
 }
 
 fn build_game(line : &str) -> Result<Game> {

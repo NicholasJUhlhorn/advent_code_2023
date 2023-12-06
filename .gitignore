@@ -1,5 +1,5 @@
 # ignore vscode stuff
-./vscode
+.vscode
 
 # ignore debug and target folders 
 /*/debug
