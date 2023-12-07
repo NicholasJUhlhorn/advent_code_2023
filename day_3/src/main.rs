@@ -2,7 +2,7 @@
 // Advent of Code
 // Day 3 - Gear Ratios
 // Input -> Grid of numbers, symbols, and periods
-// Output <- The sum of all numbers that are adjacent to at least one symbol (even diagnals!) 
+// Output <- The sum of all numbers that are adjacent to at least one symbol (even diagonals!) 
 
 // Plan: 
 // create flag matrix of symbols influence.
@@ -15,11 +15,8 @@ use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::env;
-use std::cmp;
-
 
 type Result<T> = std::result::Result<T, Box<dyn error::Error>>;
-
 
 fn main() {
     // get runtime variables
@@ -48,7 +45,7 @@ fn main() {
 
     let flags;
     match make_flag_matrix(&lines) {
-        Err(e) => panic!("encoured error with flag map: {}", e),
+        Err(e) => panic!("encountered error with flag map: {}", e),
         Ok(map) => flags = map,
     }
 
@@ -66,16 +63,17 @@ fn main() {
 
 fn get_ids(raw_string : &String, flags : &Array2D<bool>) -> Result<Vec<u32>> {
     let height = raw_string.lines().count();
-    let width = raw_string.find('\n').unwrap() - 1;
+    let width = raw_string.find('\n').unwrap();
     if height != flags.column_len() || width != flags.row_len() {
-        bail!("string dimentions must match flag dimentions str:{},{}, flag:{},{}", width, height, flags.row_len(), flags.column_len());
+        bail!("string dimensions must match flag dimensions str:{},{}, flag:{},{}", width, height, flags.row_len(), flags.column_len());
     }
     let mut ids : Vec<u32> = Vec::new();
     let mut on_number = false;
     let mut current_number_str = String::new();
-    let mut flaged = false;
+    let mut flagged = false;
     for (row, line) in raw_string.lines().enumerate() {
-        // print!("{}\n", line);
+        // print!("{:?}\n", line.chars().collect::<Vec<_>>());
+       // print!("{}\n", line);
         // for flag in flags.row_iter(row).unwrap() {
         //     print!("{}", *flag as u8);
         // }
@@ -83,19 +81,19 @@ fn get_ids(raw_string : &String, flags : &Array2D<bool>) -> Result<Vec<u32>> {
         for (col, character) in line.chars().enumerate() {
             // Find next number
             if !on_number && !character.is_numeric() {
-                // Skiping non numbers
+                // Skipping non numbers
                 continue;
             } 
             if on_number && !character.is_numeric() {
                 // print!("\n");
                 // add parse and add number to return list if so
-                if flaged {
+                if flagged {
                     let current_number : u32 = current_number_str.parse().unwrap();
                     ids.push(current_number);
                 }
                 // End number stuff
                 current_number_str = String::new();
-                flaged = false;
+                flagged = false;
                 on_number = false;
             }
             if character.is_numeric() {
@@ -105,9 +103,14 @@ fn get_ids(raw_string : &String, flags : &Array2D<bool>) -> Result<Vec<u32>> {
                 }
                 current_number_str.push(character);
 
-                // check if digit is flaged
-                flaged = flaged || *flags.get(row, col).unwrap(); 
-                // print!("{}:{}\n", current_number_str, flaged);
+                // check if digit is flagged
+                let cur_flag : &bool;
+                match flags.get(row, col) {
+                    Some(b) => cur_flag = b,
+                    None => panic!("no flag at {},{}", row, col), 
+                }
+                flagged = flagged || *cur_flag; 
+                // print!("{}:{}\n", current_number_str, flagged);
             }
         }
     }
@@ -116,24 +119,28 @@ fn get_ids(raw_string : &String, flags : &Array2D<bool>) -> Result<Vec<u32>> {
 }
 
 fn make_flag_matrix(raw_string : &String) -> Result<Array2D<bool>>{
-    // get dimentions of raw string
+    // get dimensions of raw string
     let height = raw_string.lines().count();
-    let width = raw_string.find('\n').unwrap() - 1;
+    let width;
+    match raw_string.find('\n') {
+        Some(index) => width = index,
+        None => bail!("could not find new line in text\n"),
+    }
+    print!("{},{}\n", width, height);
     let mut flags = Array2D::filled_with(false, height, width);
     // populate flags
     for (row_index, line) in raw_string.lines().enumerate() {
         for (col_index, character) in line.chars().enumerate() {
             // check for special symbol (not '.'s)
             if !character.is_alphanumeric() && character != '.' {
-                // find range imediatly around special character
-                // FIXME: possible wrong logic for incrementing end by 2 not 1
-                let (x_start, x_end) = (cmp::max(0, col_index as i32-1) as usize, cmp::min(col_index as i32+2, width as i32) as usize);
-                let (y_start, y_end) = (cmp::max(0, row_index as i32-1) as usize, cmp::min(row_index as i32+2, height as i32) as usize);
-                // fill flagmap at those points               
+                // find range immediately around special character
+                let (x_start, x_end) = (col_index-1, col_index+2);
+                let (y_start, y_end) = (row_index-1, row_index+2);
+                // fill flag map at those points               
                 for x in x_start..x_end {
                     for y in y_start..y_end {
                         match flags.set(y, x, true){
-                            Err(e) => bail!("error filling flag_matrix: {:?}", e),
+                            Err(_) => (), // out of bounds, but that is okay
                             Ok(()) => (),
                         };
                     }
