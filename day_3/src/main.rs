@@ -105,7 +105,7 @@ fn get_ids(raw_string : &String, flags : &Array2D<bool>) -> Result<Vec<u32>> {
                 }
                 current_number_str.push(character);
 
-                // check area around number for flags
+                // check if digit is flaged
                 flaged = flaged || *flags.get(row, col).unwrap(); 
                 // print!("{}:{}\n", current_number_str, flaged);
             }
