@@ -107,7 +107,7 @@ fn build_game(line : &str) -> Result<Game> {
         Some(values) => (game_preamble, raw_rounds) = values,
     }
     
-    // FIXME: possible unhandled panic from unwraping option
+    // FIXME: possible unhandled panic from unwrapping option
     let id_raw =  game_preamble.split_once(' ').unwrap().1;
     let id = id_raw.parse()?;
 
@@ -125,7 +125,7 @@ fn build_game(line : &str) -> Result<Game> {
                 "red" => round.red = amount,
                 "green" => round.green = amount,
                 "blue" => round.blue = amount,
-                _ => bail!("Unkown color, {}, used!", color),
+                _ => bail!("Unknown color, {}, used!", color),
             }
         }
         rounds.push(round);

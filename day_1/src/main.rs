@@ -2,7 +2,7 @@
 // Advent of Code 2023
 // Day one - Practicing touch typing, touching up my Rust, and starting to learn vim
 // Input  -> lines of text that have letters mixed with numbers
-// Output <- first and last digit of each line concatinated into a two digit number
+// Output <- first and last digit of each line concatenated into a two digit number
 //					 then the sum of each of those numbers
 
 use std::fs::File;
