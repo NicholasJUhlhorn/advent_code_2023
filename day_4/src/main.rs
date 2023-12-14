@@ -5,13 +5,14 @@
 //           cards with one match are worth 1, and cards with more matches
 //           are worth 2 times more for each point (offset powers of 2).
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use std::fs::File;
 use std::io::prelude::*;
 use std::path::Path;
 use std::env;
 use std::collections::HashSet;
 
+#[derive(Debug)]
 struct Card {
     win_set: HashSet<u32>,
     numbers: Vec<u32>
@@ -54,13 +55,59 @@ fn main() {
         Err(error) => panic!("problem calculating card points: {}", error)
     }
     let sum: u32 = points.iter().sum();    
-    print!("Points: {}", sum);
+    print!("Points: {}\n", sum);
 }
 
 fn parse_cards(card_string: String) -> Result<Vec<Card>> {
-    panic!("not implemented")
+    let mut card_list: Vec<Card> = Vec::new();
+    for card_line in card_string.lines() {
+        // parse the numbers out of the line
+        let first_split = card_line.split_once(":").context("could not parse a card line")?;
+        let number_string = first_split.1;
+        let second_split = number_string.split_once('|').context("could not parse a card line.")?;
+        let win_number_string =  second_split.0.trim().split_ascii_whitespace();
+        let match_numbers = second_split.1.trim().split_ascii_whitespace();
+
+        // create card to add 
+        let mut win_set: HashSet<u32> = HashSet::new();
+        for number_string in win_number_string.into_iter() {
+            let value: u32 = number_string.parse()?;
+            win_set.insert(value);
+        }
+
+        let mut match_list: Vec<u32> = Vec::new();
+        for number_string in match_numbers.into_iter() {
+            let value: u32 = number_string.parse()?;
+            match_list.push(value);
+        }
+
+        let new_card = Card {
+            win_set: win_set,
+            numbers: match_list
+        };
+
+        card_list.push(new_card);
+    }
+
+    return Ok(card_list);
 }
 
 fn calculate_card_points(cards: Vec<Card>) -> Result<Vec<u32>> {
-    panic!("not implemented")
+    let mut points: Vec<u32> = Vec::new();
+    for card in cards {
+        let mut matches = 0;
+        for number in card.numbers {
+            if card.win_set.contains(&number) {
+                matches += 1;
+            }
+        }
+        if matches == 0 {
+            points.push(0);
+        }else {
+            let base: u32 = 2;
+            let card_points = base.pow(matches - 1);
+            points.push(card_points);
+        }
+    }
+    return Ok(points);
 }
