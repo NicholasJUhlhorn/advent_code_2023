@@ -57,7 +57,7 @@ fn main() {
     // } 
 
     let ids = get_ids(&lines, &flags).unwrap();
-    print!("{:?}\n", ids);
+    // print!("{:?}\n", ids);
     let id_sum : u32 = ids.iter().sum();
     print!("{}\n", id_sum);
 }
@@ -75,31 +75,31 @@ fn get_ids(raw_string : &String, flags : &Array2D<bool>) -> Result<Vec<u32>> {
     for (row, line) in raw_string.lines().enumerate() {
         // print!("{:?}\n", line.chars().collect::<Vec<_>>());
         // print!("{}\n", line);
-        // for flag in flags.row_iter(row).unwrap() {
-        //     print!("{}", *flag as u8);
-        // }
-        // print!("\n");
+        for flag in flags.row_iter(row).unwrap() {
+            print!("{}", *flag as u8);
+        }
+        print!("\n");
         for (col, character) in line.chars().enumerate() {
             // Find next number
             if !on_number && !character.is_numeric() {
                 // Skipping non numbers
-                // print!(".");
+                print!(".");
                 continue;
             } 
             if on_number && !character.is_numeric() {
                 // print!("\n");
                 // add parse and add number to return list if so
-                // let mut p_val = "I";
+                let mut p_val = "I";
                 if flagged {
                     let current_number : u32 = current_number_str.parse().unwrap();
                     ids.push(current_number);
-                    // p_val = "P";
+                    p_val = "P";
                 }
                 // End number stuff
                 current_number_str = String::new();
                 flagged = false;
                 on_number = false;
-                // print!("{}", p_val);
+                print!("{}", p_val);
             }
             if character.is_numeric() {
                 // Start number stuff
@@ -115,15 +115,15 @@ fn get_ids(raw_string : &String, flags : &Array2D<bool>) -> Result<Vec<u32>> {
                     None => panic!("no flag at {},{}", row, col), 
                 }
                 flagged = flagged || *cur_flag; 
-                // if flagged {
-                //     print!("F")
-                // } else {
-                //     print!("{}", character);
-                // }
+                if flagged {
+                    print!("F")
+                } else {
+                    print!("{}", character);
+                }
                 // print!("{}:{}\n", current_number_str, flagged);
             }
         }
-        // print!("\n");
+        print!("\n");
     }
 
     return Ok(ids);
