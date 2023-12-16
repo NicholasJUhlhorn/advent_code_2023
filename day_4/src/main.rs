@@ -62,9 +62,9 @@ fn parse_cards(card_string: String) -> Result<Vec<Card>> {
     let mut card_list: Vec<Card> = Vec::new();
     for card_line in card_string.lines() {
         // parse the numbers out of the line
-        let first_split = card_line.split_once(":").context("could not parse a card line")?;
+        let first_split = card_line.split_once(":").context("could not parse a card line at ':'")?;
         let number_string = first_split.1;
-        let second_split = number_string.split_once('|').context("could not parse a card line.")?;
+        let second_split = number_string.split_once('|').context("could not parse a card line at '|'.")?;
         let win_number_string =  second_split.0.trim().split_ascii_whitespace();
         let match_numbers = second_split.1.trim().split_ascii_whitespace();
 
